@@ -12,9 +12,11 @@
     	background-color: #B1CEBA;
     }
 	canvas, video {
-		position: absolut;
 		width: 320px;
 		height: 240px;
+	}
+	.merge {
+		position:absolute;
 	}
     </style>
   </head>
@@ -59,7 +61,8 @@
 				edge,
 				
 				row = 0,
-				col = 0
+				col = 0,
+				collectsOn = [];
 			;
 			
 			imageData = tmpContext.createImageData( $evt.data.width, $evt.data.height );
@@ -77,19 +80,35 @@
 					imageData.data[i+1] = edge;
 				}
 				
-				//greenComponent = imageData.data[((50*(imageData.width*4)) + (200*4)) + 2];
+				// Set row and col info for snow collection
+				if ( i > 0 ) {
+					col++;
+				}
 				
+				if ( col % imageData.width == 0 ) {
+					col = 0;
+					row++;
+				}
+				
+				if ( ! collectsOn[col] ) {
+					collectsOn[col] = [];
+				}
+			
 				// Only show pixles that could collect snow
 				if ( imageData.data[i+1] > 100 ) {
 					imageData.data[i+3] = 255;
 					
-					// Work out the row and column that can collect
-					
+					collectsOn[col][row] = 1;
 					
 				} else {
 					imageData.data[i+3] = 0;
+					
+					collectsOn[col][row] = 0;
 				}
 			}
+			
+			snow.ledges = collectsOn;
+			//console.log(collectsOn);
 			
 			processedContext.putImageData( imageData, 0, 0 );
 			
@@ -98,6 +117,34 @@
 	    
 	    // Start the snow on a seperate canvas
 		snow.init( 'snowCanvas' );
+		
+		function merge () {
+			var
+				c = document.getElementsByTagName( 'canvas' )
+				v = document.getElementsByTagName( 'video' ),
+				i = 0,
+				l = 0
+			;
+			
+			for ( i=0,l=c.length; i<l; i++ ) {
+				if ( c[i].style.position == 'absolute' ) {
+					c[i].style.position = 'relative';
+					
+				} else {
+					c[i].style.position = 'absolute';
+				}
+			}
+			
+			for ( i=0,l=v.length; i<l; i++ ) {
+				if ( v[i].style.position == 'absolute' ) {
+					v[i].style.position = 'relative';
+					
+				} else {
+					v[i].style.position = 'absolute';
+				}
+			}
+		}
     </script>
+    <button onclick="merge()" style="position:relative">(Un)Merge</button>
   </body>
 </html>
