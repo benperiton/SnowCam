@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SnowCam</title>
+    <meta content="Tim Taubert" name="author">
+    <link href="main.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="lib/webcam.js"></script>
+    <script type="text/javascript" src="lib/snow.js"></script>
+    <style>
+    body {
+    	background-color: #B1CEBA;
+    }
+	canvas, video {
+		position: absolut;
+		width: 320px;
+		height: 240px;
+	}
+    </style>
+  </head>
+
+  <body>
+    <video id="camOriginal" width="320" height="240"></video>
+    <canvas id="tmpCanvas" width="320" height="240"></canvas>
+    <canvas id="camCanvas" width="320" height="240"></canvas>
+    <canvas id="snowCanvas" width="320" height="240"></canvas>
+    
+    <script>
+    	var
+    		worker = new Worker( 'lib/wwCovolution.js' ),
+    		tmpCanvas = document.getElementById( 'tmpCanvas' ),
+    		tmpContext = tmpCanvas.getContext( '2d' ),
+    		processedCanvas = document.getElementById( 'camCanvas' ),
+    		processedContext = processedCanvas.getContext( '2d' )
+		;
+		
+		webcam.init( 'camOriginal' )
+		webcam.onReadFrame = function () {
+			// Add current video frame to the temp canvas
+			tmpContext.drawImage( webcam.video, 0, 0, webcam.width, webcam.height );
+			
+			// Post to a webworker so we don't block the snow updating
+			worker.postMessage({
+				'image': tmpContext.getImageData( 0, 0, webcam.width, webcam.height ),
+				'horizontal': true,
+				'vertical': false
+			});
+			
+			
+		};
+		webcam.connect();
+		
+		// Once we have a result from the worker, update the processed canvas with the new frame
+		worker.onmessage = function ($evt) {
+			var
+				imageData,
+				i = 0,
+				l = 0,
+				edge,
+				
+				row = 0,
+				col = 0
+			;
+			
+			imageData = tmpContext.createImageData( $evt.data.width, $evt.data.height );
+			
+			for ( i=0,l=imageData.data.length; i<l; i+=4 ) {
+				// make the vertical gradient red
+				if ( $evt.data.vertical ) {
+					edge = Math.abs( $evt.data.vertical.data[i] );
+					imageData.data[i] = edge;
+				}
+
+				// make the horizontal gradient green
+				if ( $evt.data.horizontal ) {
+					edge = Math.abs( $evt.data.horizontal.data[i] );
+					imageData.data[i+1] = edge;
+				}
+				
+				//greenComponent = imageData.data[((50*(imageData.width*4)) + (200*4)) + 2];
+				
+				// Only show pixles that could collect snow
+				if ( imageData.data[i+1] > 100 ) {
+					imageData.data[i+3] = 255;
+					
+					// Work out the row and column that can collect
+					
+					
+				} else {
+					imageData.data[i+3] = 0;
+				}
+			}
+			
+			processedContext.putImageData( imageData, 0, 0 );
+			
+			window.mozRequestAnimationFrame( webcam.onReadFrame );
+	    };
+	    
+	    // Start the snow on a seperate canvas
+		snow.init( 'snowCanvas' );
+    </script>
+  </body>
+</html>
