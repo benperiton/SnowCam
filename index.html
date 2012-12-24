@@ -15,7 +15,18 @@
 		width: 320px;
 		height: 240px;
 	}
-	.merge {
+	
+	#camOriginal {
+		position:absolute;
+	}
+	#tmpCanvas {
+		position:absolute;
+	}
+	#camCanvas {
+		position:absolute;
+		display:none;
+	}
+	#snowCanvas {
 		position:absolute;
 	}
     </style>
@@ -33,7 +44,10 @@
     		tmpCanvas = document.getElementById( 'tmpCanvas' ),
     		tmpContext = tmpCanvas.getContext( '2d' ),
     		processedCanvas = document.getElementById( 'camCanvas' ),
-    		processedContext = processedCanvas.getContext( '2d' )
+    		processedContext = processedCanvas.getContext( '2d' ),
+    		requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function ($cb) {
+				window.setTimeout( $cb, 1000 / 60 );
+			}
 		;
 		
 		webcam.init( 'camOriginal' )
@@ -110,14 +124,14 @@
 			
 			processedContext.putImageData( imageData, 0, 0 );
 			
-			window.mozRequestAnimationFrame( webcam.onReadFrame );
+			requestAnimationFrame( webcam.onReadFrame );
 	    };
 	    
 	    // Start the snow on a seperate canvas
 		snow.init( 'snowCanvas' );
 		
 		function merge () {
-			if ( document.getElementById('camCanvas').style.display == 'none' ) {
+			if ( document.getElementById('camCanvas').style.display !== 'inline-block' ) {
 				document.getElementById('camOriginal').style.position = 'relative';
 				document.getElementById('tmpCanvas').style.position = 'relative';
 				document.getElementById('camCanvas').style.position = 'relative';
