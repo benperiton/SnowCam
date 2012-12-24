@@ -145,7 +145,19 @@
 				document.getElementById('snowCanvas').style.position = 'absolute';
 			}
 		}
+		
+		function release () {
+			var 
+				i = 0,
+				l = 0
+			;
+			
+			for ( i=0, l=snow.fallingFlakes.length; i<l; i++ ) {
+				snow.fallingFlakes[i].sticky = false;
+			}
+		}
     </script>
     <button onclick="merge()" style="position:relative">(Un)Merge</button>
+    <button onclick="shake()" style="position:relative">Release</button>
   </body>
 </html>
