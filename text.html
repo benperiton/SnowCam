@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SnowCam</title>
+    <style>
+    body {
+    	background-color: #B1CEBA;
+    }
+	canvas, video {
+		width: 320px;
+		height: 240px;
+	}
+	
+	#camOriginal {
+		position:absolute;
+	}
+	#tmpCanvas {
+		position:absolute;
+	}
+	#camCanvas {
+		position:absolute;
+		display:none;
+	}
+	#snowCanvas {
+		position:absolute;
+	}
+    </style>
+  </head>
+
+  <body>
+
+<canvas id="c"></canvas>
+<audio id="a"></audio>
+
+<script>
+    navigator.mozGetUserMedia({video:false, audio:true}, gotAudio, function () {console.log('fail ')});
+    var streamRecorder;
+    function gotAudio(stream) {
+    	var context = mozAudioContext();
+        var microphone = context.createMediaStreamSource(stream);
+        var analyser = context.createAnalyser();
+        microphone.connect(analyser);
+        analyser.connect(context.destination);
+        requestAnimationFrame(drawAnimation);
+        
+        streamRecorder = stream.record();
+        peerConnection.addStream(stream);
+    }
+</script>
+
+</body>
+</html>
