@@ -36,6 +36,7 @@
     <canvas id="tmpCanvas" width="320" height="240"></canvas>
     <canvas id="camCanvas" width="320" height="240"></canvas>
     <canvas id="snowCanvas" width="320" height="240"></canvas>
+    <canvas id="test" width="320" height="240"></canvas>
     
     <script>
     	var
@@ -152,7 +153,7 @@
 			;
 			
 			for ( i=0, l=snow.fallingFlakes.length; i<l; i++ ) {
-				snow.fallingFlakes[i].sticky = false;
+				snow.fallingFlakes[i].unstick();
 				snow.fallingFlakes[i].noStick = true;
 			}
 		}
