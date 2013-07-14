@@ -51,7 +51,11 @@
 		webcam.init( 'camOriginal' )
 		webcam.onReadFrame = function () {
 			// Add current video frame to the temp canvas
-			tmpContext.drawImage( webcam.video, 0, 0, webcam.width, webcam.height );
+			// XXX This try/catch is only tmp while I figure out why Firefox has issues, seems
+			// that the video frame is not quite ready when trying to drawImage on the tmpContext
+			try {
+				tmpContext.drawImage( webcam.video, 0, 0, webcam.width, webcam.height );
+			} catch (e) {}
 			
 			// Post to a webworker so we don't block the snow updating
 			worker.postMessage({
